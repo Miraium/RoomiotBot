@@ -81,7 +81,8 @@ def callback_ifttt():
 @handler.add(MessageEvent, message=TextMessage)
 def message_text(event):
     if(event.type != "message"):
-        return
+        # return
+        pass
 
     # 入力されたテキストを取り出す
     input_text = event.message.text
