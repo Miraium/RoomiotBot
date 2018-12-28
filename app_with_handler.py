@@ -81,8 +81,7 @@ def callback_ifttt():
 @handler.add(MessageEvent, message=TextMessage)
 def message_text(event):
     if(event.type != "message"):
-        # return
-        pass
+        return
 
     # 入力されたテキストを取り出す
     input_text = event.message.text
@@ -102,7 +101,7 @@ def message_sticker(event):
 @handler.add(PostbackEvent)
 def reply_to_postback(event):
     messages = []
-    ac_cont = ACControl()    
+    ac_cont = ACControl(line_bot_api, my_user_id)
     if event.postback.data == "ac_on_approval":
         messages.append(TextSendMessage(text="承知いたしました。つけておきます。"))
         ac_cont.set_turn_on_flg()
