@@ -14,7 +14,7 @@ url_template_write = "https://api.thingspeak.com/update?api_key={api_key}&field1
 url_template_read = "https://api.thingspeak.com/channels/{channel}/feeds.json?api_key={api_key}&results={num_result}"
 
 num_result = 1
-url_template = "https://api.thingspeak.com/channels/{channel}/feeds.json?api_key={api_key}&results={num_result}"
+url_template = "https://api.thingspeak.com/channels/{channel}/feeds.json?api_key={api_key}&results={num_result}&timezone=Asia/Tokyo"
 
 def get_environment_field():
     url = url_template.format(channel=my_thingspeak_channel_sensor, api_key=my_thingspeak_apikey_sensor, num_result=num_result)
