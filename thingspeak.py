@@ -4,8 +4,8 @@ import os
 import urllib.request, urllib.parse, urllib.error
 import json
 
-my_thingspeak_apikey_sensor = os.getenv('THINGSPEAK_APIKEY', None)
-my_thingspeak_channel_sensor = os.getenv('THINGSPEAK_CHANNEL', None)
+my_thingspeak_apikey_sensor = os.getenv('THINGSPEAK_APIKEY_SENSOR', None)
+my_thingspeak_channel_sensor = os.getenv('THINGSPEAK_CHANNEL_SENSOR', None)
 
 my_thingspeak_apikey_state = os.getenv('THINGSPEAK_APIKEY_STATE', None)
 my_thingspeak_channel_state = os.getenv('THINGSPEAK_CHANNEL_STATE', None)
