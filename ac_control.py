@@ -96,7 +96,7 @@ class ACControl(object):
         ({time}時点での情報)
         """
         fields = thingspeak.get_environment_field()
-        time_obj = datetime.datetime.strptime(fields.get("time"), "%Y-%m-%dT%H:%M:%S %z")
+        time_obj = datetime.datetime.strptime(fields.get("time"), "%Y-%m-%dT%H:%M:%S%z")
         time_outtext = "{year}/{month}/{date} {hour}:{minute}:{second}".format(
             year=time_obj.year,
             month=time_obj.month,
