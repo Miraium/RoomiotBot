@@ -33,7 +33,7 @@ from ac_control import ACControl
 app = Flask(__name__)
 
 # get channel_secret and channel_access_token from your environment variable
-my_user_id = os.getenv('MY_USER_ID', None)
+my_user_id = os.getenv('LINE_USER_ID', None)
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 if my_user_id is None:
