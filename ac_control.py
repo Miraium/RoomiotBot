@@ -93,8 +93,7 @@ class ACControl(object):
         温度: {temperature:.2f}度
         湿度: {humidity:.2f}%
         気圧: {pressure:.2f}hPa
-        ({time}時点での情報)
-        """
+        ({time}時点での情報)"""
         fields = thingspeak.get_environment_field()
         time_obj = datetime.datetime.strptime(fields.get("time")[:-6], "%Y-%m-%dT%H:%M:%S")
         time_outtext = "{year}/{month}/{date} {hour}:{minute}:{second}".format(
