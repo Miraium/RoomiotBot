@@ -27,7 +27,7 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, StickerMessage,
     StickerSendMessage, PostbackEvent, PostbackTemplateAction, Postback
 )
-
+from KeyWordHandler import KeyWordHandler
 from ac_control import ACControl
 
 app = Flask(__name__)
@@ -68,38 +68,53 @@ def callback():
 
 @app.route("/ifttt", methods=['POST'])
 def callback_ifttt():
+    """
+    IFTTTからのWebHookを受け取り、bodyの中身に応じて確認メッセージを投稿する
+    """
     body = request.get_data(as_text=True)
-    app.logger.info("IFTTT test")
+    app.logger.info("callback_ifttt() called.")
     app.logger.info("Request body: " + body)
     ac_cont = ACControl(line_bot_api, my_user_id)
-    if(body=="IFTTT_AC_ON"):
+    if body == "IFTTT_AC_ON":
         ac_cont.push_turn_on_confirm()
-    elif(body=="IFTTT_AC_OFF"):
+    elif body == "IFTTT_AC_OFF":
         ac_cont.push_turn_off_confirm()
     return 'OK'
 
 @handler.add(MessageEvent, message=TextMessage)
 def message_text(event):
+    """
+    ユーザーからのテキストメッセージを受け取り、加工して返答する
+    """
     if(event.type != "message"):
         return
-
     # 入力されたテキストを取り出す
     input_text = event.message.text
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=event.message.text+"ですね。")
-    )
+    kw_handler = KeyWordHandler()
+    no_service = kw_handler.handle(line_bot_api, my_user_id, event)
+
+    if no_service is True:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=event.message.text+"ですね。")
+        )
 
 @handler.add(MessageEvent, message=StickerMessage)
 def message_sticker(event):
+    """
+    ユーザーからのスタンプメッセージを受け取り、返答する
+    """
     name = line_bot_api.get_profile(event.source.user_id).display_name
     line_bot_api.reply_message(
         event.reply_token,
-        [TextSendMessage(text="なるほど、スタンプですか。考えましたね、"+name+"さん。"),StickerSendMessage(package_id=4,sticker_id=296)]
+        [TextSendMessage(text="なるほど、スタンプですか。考えましたね、"+name+"さん。"),StickerSendMessage(package_id=4, sticker_id=296)]
     )
 
 @handler.add(PostbackEvent)
 def reply_to_postback(event):
+    """
+    ユーザーからのボタン押下によるPostbackに対して、返答する
+    """
     messages = []
     ac_cont = ACControl(line_bot_api, my_user_id)
     if event.postback.data == "ac_on_approval":
