@@ -142,7 +142,7 @@ def reply_to_postback(event):
 
 @handler.add(FollowEvent)
 def check_user_information(event):
-    app.logger("New user followed Yoshina.")
+    app.logger.info("New user followed Yoshina.")
     uid = event.source.user_id
     uname = line_bot_api.get_profile(uid).display_name
     timestamp_ms = event.timestamp
@@ -151,7 +151,7 @@ def check_user_information(event):
     connection = get_database_connection()
     if user_exists(connection, uid):
         append_new_user_to_database(connection, uid, uname, timestamp)
-        app.logger("New user was appended.")
+        app.logger.info("New user was appended.")
     connection.close()
 
 def convert_timestamp(milliseconds):
