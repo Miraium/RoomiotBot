@@ -17,6 +17,7 @@ import sys
 from argparse import ArgumentParser
 import datetime
 import psycopg2
+import logging
 
 from flask import Flask, request, abort
 from linebot import (
@@ -34,6 +35,12 @@ from ac_control import ACControl
 
 
 app = Flask(__name__)
+
+# https://teratail.com/questions/159332
+# ログを標準出力に出力する
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+# （レベル設定は適宜行ってください）
+# app.logger.setLevel(logging.ERROR)
 
 # get channel_secret and channel_access_token from your environment variable
 my_user_id = os.getenv('LINE_USER_ID', None)
