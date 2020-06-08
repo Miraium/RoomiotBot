@@ -30,7 +30,6 @@ from linebot.models import (
     StickerSendMessage, PostbackEvent, PostbackTemplateAction, Postback,
     FollowEvent
 )
-# from KeyWordHandler import KeyWordHandler
 from ac_control import ACControl
 
 
