@@ -175,7 +175,7 @@ def append_new_user_to_database(connection, userid, username, timestamp):
     sql = "INSERT INTO LineBotState (uid, uname, serving, last_message_time) VALUES(%s, %s, %s, %s)"
     data = (userid, username, "Default", timestamp)
     cur.execute(sql, data)
-    cur.commit()
+    connection.commit()
     cur.close()
 
 
