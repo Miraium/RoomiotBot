@@ -157,7 +157,7 @@ def check_user_information(event):
     timestamp = convert_timestamp(timestamp_ms)
 
     connection = get_database_connection()
-    if user_exists(connection, uid):
+    if not user_exists(connection, uid):
         append_new_user_to_database(connection, uid, uname, timestamp)
         app.logger.info("New user was appended.")
     connection.close()
