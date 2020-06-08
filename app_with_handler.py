@@ -15,6 +15,8 @@
 import os
 import sys
 from argparse import ArgumentParser
+import datetime
+import psycopg2
 
 from flask import Flask, request, abort
 from linebot import (
@@ -25,10 +27,12 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, StickerMessage,
-    StickerSendMessage, PostbackEvent, PostbackTemplateAction, Postback
+    StickerSendMessage, PostbackEvent, PostbackTemplateAction, Postback,
+    FollowEvent
 )
 from KeyWordHandler import KeyWordHandler
 from ac_control import ACControl
+
 
 app = Flask(__name__)
 
@@ -88,16 +92,21 @@ def message_text(event):
     """
     if(event.type != "message"):
         return
-    # 入力されたテキストを取り出す
-    input_text = event.message.text
-    kw_handler = KeyWordHandler()
-    no_service = kw_handler.handle(line_bot_api, my_user_id, event)
+    # gurunavi = Gurunavi()
 
-    if no_service is True:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=event.message.text+"ですね。")
-        )
+    # if gurunavi.is_serving(userid=event.source.user_id):
+    #     gurunavi.reply(searchword=event.message.text)
+
+    # # 入力されたテキストを取り出す
+    # input_text = event.message.text
+    # if input_text == "食事":
+    #     gurunavi.start_service()
+    # else:
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=event.message.text+"ですね。")
+    )
+        
 
 @handler.add(MessageEvent, message=StickerMessage)
 def message_sticker(event):
@@ -132,6 +141,46 @@ def reply_to_postback(event):
         ac_cont.set_no_action_flg()
     line_bot_api.reply_message(event.reply_token, messages)
 
+@handler.add(FollowEvent)
+def check_user_information(event):
+    app.logger("New user followed Yoshina.")
+    uid = event.source.user_id
+    uname = line_bot_api.get_profile(uid).display_name
+    timestamp_ms = event.timestamp
+    timestamp = convert_timestamp(timestamp_ms)
+
+    connection = get_database_connection()
+    if user_exists(connection, uid):
+        append_new_user_to_database(connection, uid, uname, timestamp)
+        app.logger("New user was appended.")
+    connection.close()
+
+def convert_timestamp(milliseconds):
+    seconds = milliseconds / 1000.0
+    return datetime.datetime.fromtimestamp(seconds).strftime('%Y-%m-%d %H:%M:%S')
+
+def get_database_connection():
+    url = os.getenv("DATABASE_URL")
+    return psycopg2.connect(url)
+
+def append_new_user_to_database(connection, userid, username, timestamp):
+    cur = connection.cursor()
+    sql = "INSERT INTO LineBotState (uid, uname, serving, last_message_time) VALUES(%s, %s, %s, %s)"
+    data = (userid, username, "Default", timestamp)
+    cur.execute(sql, data)
+    cur.commit()
+    cur.close()
+
+
+def user_exists(connection, userid):
+    cur = connection.cursor()
+    cur.execute("SELECT * FROM LinebotState WHERE uid = (%s)", (userid,))
+    user_info = cur.fetchall()
+    cur.close()
+    if len(user_info):
+        return True
+    else:
+        return False
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
