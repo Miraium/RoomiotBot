@@ -41,6 +41,7 @@ app = Flask(__name__)
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 # （レベル設定は適宜行ってください）
 # app.logger.setLevel(logging.ERROR)
+app.logger.setLevel(logging.INFO)
 
 # get channel_secret and channel_access_token from your environment variable
 my_user_id = os.getenv('LINE_USER_ID', None)
