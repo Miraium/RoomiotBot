@@ -109,7 +109,7 @@ def message_text(event):
     # 入力されたテキストを取り出す
     input_text = event.message.text
     if input_text == "食事":
-        gurunavi.start_service(userid=event.source.userid)
+        gurunavi.start_service(userid=event.source.user_id)
         gurunavi.reply_start_message(line_bot_api, event)
     else:
         line_bot_api.reply_message(
