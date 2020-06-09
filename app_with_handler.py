@@ -32,7 +32,7 @@ from linebot.models import (
     FollowEvent
 )
 from ac_control import ACControl
-
+from Gurunavi import Gurunavi
 
 app = Flask(__name__)
 
@@ -99,20 +99,23 @@ def message_text(event):
     """
     if(event.type != "message"):
         return
-    # gurunavi = Gurunavi()
 
-    # if gurunavi.is_serving(userid=event.source.user_id):
-    #     gurunavi.reply(searchword=event.message.text)
+    gurunavi = Gurunavi()
+    if gurunavi.is_serving(userid=event.source.user_id):
+        gurunavi.reply_shop_list(line_bot_api, event)
+        gurunavi.finish_service(userid=event.source.user_id)
+        return
 
-    # # 入力されたテキストを取り出す
-    # input_text = event.message.text
-    # if input_text == "食事":
-    #     gurunavi.start_service()
-    # else:
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=event.message.text+"ですね。")
-    )
+    # 入力されたテキストを取り出す
+    input_text = event.message.text
+    if input_text == "食事":
+        gurunavi.start_service(userid=event.source.userid)
+        gurunavi.reply_start_message(line_bot_api, event)
+    else:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=event.message.text+"ですね。")
+        )
         
 
 @handler.add(MessageEvent, message=StickerMessage)
