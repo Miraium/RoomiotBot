@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import os
+import sys
 import requests
 import urllib.request, urllib.parse, urllib.error
 import json
@@ -9,6 +10,22 @@ import psycopg2
 from linebot.models import (
     CarouselTemplate, CarouselColumn, URITemplateAction, TemplateSendMessage, TextSendMessage
 )
+
+class RestaurantInfo():
+    def __init__(self):
+        self.name = "No Title"
+        self.shop_img = ""
+        self.shop_url = ""
+        self.text_pr = "No information"
+        self.opentime = "Open :  - Close : "
+        self.holiday = "-"
+    
+    def show(self):
+        print("Name   : {0}".format(self.name))
+        print("PR     : {0}".format(self.text_pr))
+        print("Open   : {0}".format(self.opentime))
+        print("Holiday: {0}".format(self.holiday))
+        print("URL    : {0}".format(self.shop_url))
 
 class Gurunavi(object):
     """
@@ -59,56 +76,59 @@ class Gurunavi(object):
         total_hit_count = None
         if "total_hit_count" in data:
             total_hit_count = data["total_hit_count"]
+        
         # レストランデータがなかったら終了
-        if not "rest" in data :
-            # print("レストランデータが見つからなかったため終了します。")
-            self._sendText("レストランデータが見つからなかったため終了します。")
-            return None
-            # sys.exit()
+        if not "rest" in data:
+            print("レストランデータが見つからなかったため終了します。")
+            sys.exit()
         
         # レストランデータ取得
-        info_list = []
-        for rest in data["rest"] :
-            name = "No Title"
-            shop_img = ""
-            shop_url = ""
-            text_pr = "No information"
+        num_of_shop = 0
+        rest_info_list = []
+        for rest in data["rest"]:
+            rest_info = RestaurantInfo()
             
+
             # 店舗名の取得
             if "name" in rest and self._is_str(rest["name"]):
-                name = rest["name"]
+                rest_info.name = rest["name"]
             
             # 画像アドレスの取得(カルーセル取得用)
             if "image_url" in rest:
                 image_url = rest["image_url"]
                 if "shop_image1" in image_url and self._is_str(image_url["shop_image1"]):
-                    shop_img = image_url["shop_image1"]
+                    rest_info.shop_img = image_url["shop_image1"]
 
             # 店舗のURL
             if "url" in rest and self._is_str(rest["url"]):
-                shop_url = rest["url"]
+                rest_info.shop_url = rest["url"]
             
             # PR文章
             if "pr" in rest: 
                 pr = rest["pr"]
-                if "pr_short" in pr and self._is_str( pr["pr_short"] ) :
+                if "pr_short" in pr and self._is_str(pr["pr_short"]):
                     if pr["pr_short"] != "":
                         text_pr = pr["pr_short"]
                         if len(pr["pr_short"]) > Gurunavi.MAX_TEXT:
                             text_pr = text_pr[0:Gurunavi.MAX_TEXT]
                     else:
                         text_pr = "No Information"
+                rest_info.text_pr = text_pr
+            
+            if "opentime" in rest:
+                rest_info.opentime = rest["opentime"]
+            
+            if "holiday" in rest:
+                rest_info.holiday = rest["holiday"]
 
-            info = {}
-            info["name"] = name
-            info["shop_img"] = shop_img
-            info["shop_url"] = shop_url
-            info["text_pr"] = text_pr
+            rest_info_list.append(rest_info)
 
-            info_list.append(info)
-            if(len(info_list) >= Gurunavi.MAX_SHOW):
+            num_of_shop += 1
+            if(num_of_shop >= Gurunavi.MAX_SHOW):
                 break
-        return info_list
+        
+        return rest_info_list
+
     
     def _is_str(self, data=None):
         if isinstance(data, str):
@@ -191,7 +211,7 @@ class Gurunavi(object):
                 ]
                 )
             columns.append(carousel)
-        
+
         carousel_template_message = TemplateSendMessage(
             alt_text='ぐるなび検索結果',
             template=CarouselTemplate(columns=columns)
