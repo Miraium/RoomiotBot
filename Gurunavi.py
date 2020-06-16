@@ -121,6 +121,11 @@ class Gurunavi(object):
             
             if "holiday" in rest:
                 rest_info.holiday = rest["holiday"]
+            
+            # 全カルーセルが同じコンテンツを含んでいる必要があるため、
+            # 情報に欠損がある店舗は表示しないようにスキップしてカウントに入れない
+            if rest_info.name == "" or rest_info.shop_img == "" or rest_info.shop_url == "" or rest_info.text_pr == "":
+                continue
 
             rest_info_list.append(rest_info)
 
@@ -199,7 +204,7 @@ class Gurunavi(object):
         columns = []
         for rest_info in rest_info_list:
             carousel = CarouselColumn(
-                thumbnail_image_url=rest_info.shop_img if rest_info.shop_img != "" else None,
+                thumbnail_image_url=rest_info.shop_img,
                 title=rest_info.name,
                 # title = "aa",
                 text=rest_info.text_pr,
