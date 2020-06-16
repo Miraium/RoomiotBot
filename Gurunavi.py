@@ -26,6 +26,7 @@ class RestaurantInfo():
         print("Open   : {0}".format(self.opentime))
         print("Holiday: {0}".format(self.holiday))
         print("URL    : {0}".format(self.shop_url))
+        print("Image  : {0}".format(self.shop_img))
 
 class Gurunavi(object):
     """
@@ -34,7 +35,7 @@ class Gurunavi(object):
     ROOT_URL = "https://api.gnavi.co.jp/RestSearchAPI/v3/"
     GURUNAVI_APIKEY = os.getenv('GURUNAVI_APIKEY', None)
     DBURL = os.getenv("DATABASE_URL", None)
-    MAX_SHOW = 5
+    MAX_SHOW = 10
     MAX_TEXT = 60
 
     def __init__(self):
@@ -198,7 +199,7 @@ class Gurunavi(object):
         columns = []
         for rest_info in rest_info_list:
             carousel = CarouselColumn(
-                thumbnail_image_url=rest_info.shop_img,
+                thumbnail_image_url=rest_info.shop_img if rest_info.shop_img != "" else None,
                 title=rest_info.name,
                 # title = "aa",
                 text=rest_info.text_pr,
